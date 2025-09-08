@@ -3,16 +3,13 @@ import pandas as pd
 
 st.set_page_config(page_title="Calculette de la Perf !", layout="centered")
 
-# --- CSS pour responsive ---
+# --- CSS pour responsive et style ---
 st.markdown("""
 <style>
-/* Titre centré et adapté */
 h1 {
     text-align: center;
     font-size: 28px;
 }
-
-/* Boutons centrés et plus gros */
 div.stButton > button:first-child {
     font-size: 22px;
     background-color: #4CAF50;
@@ -22,8 +19,6 @@ div.stButton > button:first-child {
     display: block;
     margin: 20px auto;
 }
-
-/* Encadrés VMA responsive */
 .vma-result {
     border:2px solid #4CAF50;
     padding:15px;
@@ -34,8 +29,6 @@ div.stButton > button:first-child {
     font-weight:bold;
     margin-bottom:15px;
 }
-
-/* Colonnes empilées sur petit écran */
 @media only screen and (max-width: 600px) {
     div[data-baseweb="column"] {
         flex-direction: column;
@@ -47,11 +40,20 @@ div.stButton > button:first-child {
 # --- Titre global ---
 st.markdown("<h1>💪 Calculette de la Perf ! 💪</h1>", unsafe_allow_html=True)
 
-# --- Onglets pour sélectionner l'outil ---
+# --- Onglets outils ---
 onglets_outils = st.tabs(["📊 Calcul d'intervalles", "⚡ VMAïe !"])
 
+# --- Fonction pour formater le temps ---
+def format_temps(temps_s):
+    minutes = int(temps_s // 60)
+    secondes = temps_s % 60
+    if minutes == 0:
+        return f"{secondes:.1f} sec"
+    else:
+        return f"{minutes} min {int(secondes):02d} sec"
+
 # =========================
-# --- Onglet 1 : Calcul d'intervalles ---
+# Onglet 1 : Calcul d'intervalles
 # =========================
 with onglets_outils[0]:
     st.subheader("📏 Calcul d'intervalles")
@@ -102,7 +104,7 @@ with onglets_outils[0]:
                 for i in range(1, nb+1):
                     m = i * intervalle_m
                     t_s = m / vitesse
-                    st.write(f"{int(m)} m → {int(t_s//60):02d}:{int(t_s%60):02d}")
+                    st.markdown(f"<div class='vma-result'>{int(m)} m → {format_temps(t_s)}</div>", unsafe_allow_html=True)
 
             elif intervalle_s > 0:
                 nb = int(temps_total_s // intervalle_s)
@@ -110,10 +112,10 @@ with onglets_outils[0]:
                 for i in range(1, nb+1):
                     t = i * intervalle_s
                     m = t * vitesse
-                    st.write(f"{int(t//60):02d}:{int(t%60):02d} → {int(m)} m")
+                    st.markdown(f"<div class='vma-result'>{format_temps(t)} → {int(m)} m</div>", unsafe_allow_html=True)
 
 # =========================
-# --- Onglet 2 : VMAïe ! ---
+# Onglet 2 : VMAïe !
 # =========================
 with onglets_outils[1]:
     st.subheader("⚡ VMAïe ! - Outil de séances VMA")
@@ -126,7 +128,7 @@ with onglets_outils[1]:
     if mode_vma == "Distance connue":
         dist = st.number_input("Distance à parcourir (m)", min_value=1, value=200, step=50)
         temps_s = dist / (vma * pct_vma_user / 100 * 1000 / 3600)
-        st.markdown(f"<div class='vma-result'>Temps à réaliser : {int(temps_s//60)} min {int(temps_s%60)}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='vma-result'>Temps à réaliser : {format_temps(temps_s)}</div>", unsafe_allow_html=True)
     else:
         col_t1, col_t2 = st.columns(2)
         t_min = col_t1.number_input("Minutes", min_value=0, value=1, step=1)
@@ -144,7 +146,7 @@ with onglets_outils[1]:
         ligne = []
         for d in distances_tab:
             t_s = d / (vma * p / 100 * 1000 / 3600)
-            ligne.append(f"{int(t_s//60):02d}:{int(t_s%60):02d}")
+            ligne.append(format_temps(t_s))
         tableau.append(ligne)
 
     df_tableau = pd.DataFrame(tableau, index=[f"{p}%" for p in pct_tab], columns=[f"{d} m" for d in distances_tab])
