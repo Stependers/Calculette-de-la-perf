@@ -123,9 +123,9 @@ with onglets_outils[1]:
     vma = col_vma1.number_input("VMA (km/h)", min_value=0.0, value=15.0, step=0.1)
     pct_vma_user = col_vma2.number_input("%VMA visé", min_value=50, max_value=120, value=100, step=5)
 
-    mode_vma = st.radio("Mode de calcul", ["Distance connue", "Temps connu"], horizontal=True)
+    mode_vma = st.radio("Mode de calcul", ["Distance", "Temps"], horizontal=True)
 
-    if mode_vma == "Distance connue":
+    if mode_vma == "Distance":
         dist = st.number_input("Distance à parcourir (m)", min_value=1, value=200, step=50)
         temps_s = dist / (vma * pct_vma_user / 100 * 1000 / 3600)
         st.markdown(f"<div class='vma-result'>Temps à réaliser : {format_temps(temps_s)}</div>", unsafe_allow_html=True)
@@ -154,4 +154,5 @@ with onglets_outils[1]:
 
 # --- Copyright ---
 st.markdown("<p style='text-align: center;'>© by Coach Antoine</p>", unsafe_allow_html=True)
+
 
