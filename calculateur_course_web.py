@@ -97,3 +97,6 @@ if st.button("🏃 En route pour la perf !"):
                 t = i * intervalle_s
                 m = t * vitesse
                 st.write(f"{int(t//60):02d}:{int(t%60):02d} → {int(m)} m")
+
+# --- Copyright ---
+st.markdown("<p style='text-align: center;'>© by Coach Antoine</p>", unsafe_allow_html=True)
