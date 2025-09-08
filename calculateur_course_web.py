@@ -36,31 +36,20 @@ with tab_pace:
         temps_total_s = (distance_m / 1000) * allure_s
         st.markdown(f"**Temps visé :** {int(temps_total_s//60)} min {int(temps_total_s%60)} sec")
 
-# --- Onglets Intervalle avec radio caché pour gérer l’onglet actif ---
+# --- Onglets Intervalle ---
 st.subheader("Intervalle")
-interval_type = st.radio("Type d'intervalle :", ["Distance", "Temps"], index=0, key="hidden_radio")
-# --- cacher le radio ---
-st.markdown("""
-<style>
-div[role="radiogroup"] {display:none;}
-</style>
-""", unsafe_allow_html=True)
-
 tab_dist, tab_time_interval = st.tabs(["📏 Intervalle par distance", "⏳ Intervalle par temps"])
 
 # Variables intervalle
 intervalle_m = intervalle_s = 0
 
 with tab_dist:
-    if interval_type == "Distance":
-        intervalle_m = st.number_input("Intervalle distance (m)", min_value=1, value=1000, step=100)
+    intervalle_m = st.number_input("Intervalle distance (m)", min_value=1, value=1000, step=100, key="intervalle_m")
 
 with tab_time_interval:
-    if interval_type == "Temps":
-        col5, col6 = st.columns(2)
-        intervalle_min = col5.number_input("Minutes", min_value=0, value=1, step=1)
-        intervalle_sec = col6.number_input("Secondes", min_value=0, max_value=59, value=0, step=1)
-        intervalle_s = intervalle_min*60 + intervalle_sec
+    intervalle_min = st.number_input("Minutes", min_value=0, value=1, step=1, key="intervalle_t_min")
+    intervalle_sec = st.number_input("Secondes", min_value=0, max_value=59, value=0, step=1, key="intervalle_t_sec")
+    intervalle_s = intervalle_min*60 + intervalle_sec
 
 # --- Bouton central ---
 st.markdown("""
@@ -81,11 +70,11 @@ if st.button("🏃 En route pour la perf !"):
     if allure_s <= 0:
         st.warning("⚠ Veuillez saisir un temps visé ou une allure visée valide.")
     else:
-        vitesse = 1000 / allure_s
+        vitesse = 1000 / allure_s  # m/s
         st.subheader("Résultats :")
 
         # --- Calcul intervalle distance ---
-        if interval_type == "Distance" and intervalle_m > 0:
+        if intervalle_m > 0:
             nb = int(distance_m // intervalle_m)
             st.markdown(f"**Intervalle distance : {intervalle_m} m**")
             for i in range(1, nb+1):
@@ -94,7 +83,7 @@ if st.button("🏃 En route pour la perf !"):
                 st.write(f"{int(m)} m → {int(t_s//60):02d}:{int(t_s%60):02d} sec")
 
         # --- Calcul intervalle temps ---
-        elif interval_type == "Temps" and intervalle_s > 0:
+        if intervalle_s > 0:
             nb = int(temps_total_s // intervalle_s)
             st.markdown(f"**Intervalle temps : {intervalle_min} min {intervalle_sec} sec**")
             for i in range(1, nb+1):
