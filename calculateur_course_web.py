@@ -1,5 +1,6 @@
 import streamlit as st
 
+# --- Configuration de la page ---
 st.set_page_config(page_title="Calculette de la Perf !", layout="centered")
 
 # --- Titre ---
@@ -19,7 +20,7 @@ tab_time, tab_pace = st.tabs(["⏱️ Temps visé", "🏃 Allure visée (min/km)
 allure_s = 0
 temps_total_s = 0
 
-# Onglet Temps visé
+# Temps visé
 with tab_time:
     col1, col2 = st.columns(2)
     temps_min = col1.number_input("Minutes", min_value=0, value=25, step=1, key="t_min_tab_time")
@@ -29,7 +30,7 @@ with tab_time:
         allure_s = (temps_total_s / distance_m) * 1000
         st.markdown(f"**Allure visée :** {int(allure_s//60)} min {int(allure_s%60)} sec / km")
 
-# Onglet Allure visée
+# Allure visée
 with tab_pace:
     col3, col4 = st.columns(2)
     allure_min = col3.number_input("Minutes", min_value=0, value=5, step=1, key="a_min_tab_pace")
@@ -72,10 +73,10 @@ if st.button("🏃 En route pour la perf !"):
     if allure_s <= 0:
         st.warning("⚠ Veuillez saisir un temps visé ou une allure visée valide.")
     else:
-        vitesse = 1000 / allure_s
+        vitesse = 1000 / allure_s  # m/s
         st.subheader("Résultats :")
         # Onglet Intervalle par distance actif
-        if st.session_state.get("intervalle_distance_tab_dist", 0) > 0:
+        if st.tabs()[1] == "📏 Intervalle par distance":  # Vérifie si onglet actif
             nb_intervalles = int(distance_m // intervalle_m)
             st.markdown(f"**Intervalle distance : {intervalle_m} m**")
             for i in range(1, nb_intervalles+1):
@@ -83,14 +84,14 @@ if st.button("🏃 En route pour la perf !"):
                 t_s = m / vitesse
                 st.write(f"{int(m)} m → {int(t_s//60):02d}:{int(t_s%60):02d} sec")
         # Onglet Intervalle par temps actif
-        elif (st.session_state.get("intervalle_temps_min_tab_time",0) > 0 
-              or st.session_state.get("intervalle_temps_sec_tab_time",0) > 0):
-            intervalle_s = st.session_state.get("intervalle_temps_min_tab_time",0)*60 + st.session_state.get("intervalle_temps_sec_tab_time",0)
-            nb_intervalles = int(temps_total_s // intervalle_s)
-            st.markdown(f"**Intervalle temps : {intervalle_min} min {intervalle_sec} sec**")
-            for i in range(1, nb_intervalles+1):
-                t = i * intervalle_s
-                m = t * vitesse
-                st.write(f"{int(t//60):02d}:{int(t%60):02d} → {int(m)} m")
         else:
-            st.warning("⚠ Veuillez saisir un intervalle en distance ou en temps.")
+            intervalle_s = intervalle_min*60 + intervalle_sec
+            if intervalle_s <= 0:
+                st.warning("⚠ Veuillez saisir un intervalle temps valide.")
+            else:
+                nb_intervalles = int(temps_total_s // intervalle_s)
+                st.markdown(f"**Intervalle temps : {intervalle_min} min {intervalle_sec} sec**")
+                for i in range(1, nb_intervalles+1):
+                    t = i * intervalle_s
+                    m = t * vitesse
+                    st.write(f"{int(t//60):02d}:{int(t%60):02d} → {int(m)} m")
