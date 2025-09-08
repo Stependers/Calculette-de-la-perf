@@ -14,80 +14,49 @@ unite = col_dist2.selectbox("Unité :", ["km", "m"])
 distance_m = distance * 1000 if unite == "km" else distance
 
 # --- Onglets Temps visé / Allure visée ---
-tab1, tab2 = st.tabs(["⏱️ Temps visé", "🏃 Allure visée (min/km)"])
+tab_time, tab_pace = st.tabs(["⏱️ Temps visé", "🏃 Allure visée (min/km)"])
 
-# Variables locales
-temps_total_s_tab1 = 0
-allure_s_tab1 = 0
-temps_total_s_tab2 = 0
-allure_s_tab2 = 0
+# Variables globales
+allure_s = 0
+temps_total_s = 0
 
 # --- Onglet Temps visé ---
-with tab1:
+with tab_time:
     col1, col2 = st.columns(2)
-    temps_min = col1.number_input("Minutes", min_value=0, value=25, step=1, key="t_min_tab1")
-    temps_sec = col2.number_input("Secondes", min_value=0, max_value=59, value=0, step=1, key="t_sec_tab1")
-    if st.button("Calculer allure", key="btn_temps_tab1"):
-        temps_total_s_tab1 = temps_min*60 + temps_sec
-        if temps_total_s_tab1 > 0 and distance_m > 0:
-            allure_s_tab1 = (temps_total_s_tab1 / distance_m) * 1000
-            st.success(f"Allure visée : {int(allure_s_tab1//60)} min {int(allure_s_tab1%60)} sec / km")
+    temps_min = col1.number_input("Minutes", min_value=0, value=25, step=1, key="t_min_tab_time")
+    temps_sec = col2.number_input("Secondes", min_value=0, max_value=59, value=0, step=1, key="t_sec_tab_time")
+    # Calcul automatique
+    temps_total_s = temps_min*60 + temps_sec
+    if distance_m > 0 and temps_total_s > 0:
+        allure_s = (temps_total_s / distance_m) * 1000
+        st.markdown(f"**Allure visée :** {int(allure_s//60)} min {int(allure_s%60)} sec / km")
 
 # --- Onglet Allure visée ---
-with tab2:
+with tab_pace:
     col3, col4 = st.columns(2)
-    allure_min = col3.number_input("Minutes", min_value=0, value=5, step=1, key="a_min_tab2")
-    allure_sec = col4.number_input("Secondes", min_value=0, max_value=59, value=0, step=1, key="a_sec_tab2")
-    if st.button("Calculer temps", key="btn_allure_tab2"):
-        allure_s_tab2 = allure_min*60 + allure_sec
-        if allure_s_tab2 > 0 and distance_m > 0:
-            temps_total_s_tab2 = (distance_m / 1000) * allure_s_tab2
-            st.success(f"Temps visé : {int(temps_total_s_tab2//60)} min {int(temps_total_s_tab2%60)} sec")
+    allure_min = col3.number_input("Minutes", min_value=0, value=5, step=1, key="a_min_tab_pace")
+    allure_sec = col4.number_input("Secondes", min_value=0, max_value=59, value=0, step=1, key="a_sec_tab_pace")
+    # Calcul automatique
+    allure_s = allure_min*60 + allure_sec
+    if distance_m > 0 and allure_s > 0:
+        temps_total_s = (distance_m / 1000) * allure_s
+        st.markdown(f"**Temps visé :** {int(temps_total_s//60)} min {int(temps_total_s%60)} sec")
 
 # --- Onglets Intervalle ---
-tab3, tab4 = st.tabs(["📏 Intervalle par distance", "⏳ Intervalle par temps"])
+tab_dist, tab_time_interval = st.tabs(["📏 Intervalle par distance", "⏳ Intervalle par temps"])
 
-# --- Intervalle par distance ---
-with tab3:
-    intervalle_m = st.number_input("Intervalle distance (m)", min_value=1, value=1000, step=100, key="intervalle_distance_tab3")
-    sorties_distance = []
-    if st.button("Calculer intervalle (Distance)", key="btn_intervalle_distance"):
-        # On choisit quelle allure utiliser selon onglet actif
-        allure_s = allure_s_tab1 if allure_s_tab1 > 0 else allure_s_tab2
-        if intervalle_m > 0 and allure_s > 0:
-            vitesse = 1000 / allure_s
-            nb_intervalles = int(distance_m // intervalle_m)
-            for i in range(1, nb_intervalles + 1):
-                m = i * intervalle_m
-                t_s = m / vitesse
-                sorties_distance.append(f"{int(m)} m → {int(t_s//60):02d}:{int(t_s%60):02d} sec")
-            st.subheader("Résultats Intervalle Distance :")
-            for s in sorties_distance:
-                st.write(s)
+# Intervalle par distance
+with tab_dist:
+    intervalle_m = st.number_input("Intervalle distance (m)", min_value=1, value=1000, step=100, key="intervalle_distance_tab_dist")
 
-# --- Intervalle par temps ---
-with tab4:
+# Intervalle par temps
+with tab_time_interval:
     col5, col6 = st.columns(2)
-    intervalle_min = col5.number_input("Minutes", min_value=0, value=1, step=1, key="intervalle_temps_min_tab4")
-    intervalle_sec = col6.number_input("Secondes", min_value=0, max_value=59, value=0, step=1, key="intervalle_temps_sec_tab4")
-    sorties_temps = []
-    if st.button("Calculer intervalle (Temps)", key="btn_intervalle_temps"):
-        allure_s = allure_s_tab1 if allure_s_tab1 > 0 else allure_s_tab2
-        intervalle_s = intervalle_min*60 + intervalle_sec
-        if intervalle_s > 0 and allure_s > 0:
-            vitesse = 1000 / allure_s
-            # temps_total_s dépend de l’onglet actif
-            temps_total_s = temps_total_s_tab1 if temps_total_s_tab1 > 0 else temps_total_s_tab2
-            nb_intervalles = int(temps_total_s // intervalle_s)
-            for i in range(1, nb_intervalles + 1):
-                t = i * intervalle_s
-                m = t * vitesse
-                sorties_temps.append(f"{int(t//60):02d}:{int(t%60):02d} → {int(m)} m")
-            st.subheader("Résultats Intervalle Temps :")
-            for s in sorties_temps:
-                st.write(s)
+    intervalle_min = col5.number_input("Minutes", min_value=0, value=1, step=1, key="intervalle_temps_min_tab_time")
+    intervalle_sec = col6.number_input("Secondes", min_value=0, max_value=59, value=0, step=1, key="intervalle_temps_sec_tab_time")
+    intervalle_s = intervalle_min*60 + intervalle_sec
 
-# --- Bouton central général (optionnel) ---
+# --- Bouton central pour calcul final ---
 st.markdown("""
 <style>
 div.stButton > button:first-child {
@@ -101,3 +70,29 @@ div.stButton > button:first-child {
 }
 </style>
 """, unsafe_allow_html=True)
+
+if st.button("🏃 En route pour la perf !"):
+    if allure_s <= 0:
+        st.warning("⚠ Veuillez saisir un temps visé ou une allure visée valide.")
+    else:
+        vitesse = 1000 / allure_s  # m/s
+        st.subheader("Résultats :")
+        # Intervalle par distance
+        if st.session_state.get("intervalle_distance_tab_dist", 0) > 0:
+            nb_intervalles = int(distance_m // intervalle_m)
+            st.markdown(f"**Intervalle distance : {intervalle_m} m**")
+            for i in range(1, nb_intervalles+1):
+                m = i * intervalle_m
+                t_s = m / vitesse
+                st.write(f"{int(m)} m → {int(t_s//60):02d}:{int(t_s%60):02d} sec")
+        # Intervalle par temps
+        elif st.session_state.get("intervalle_temps_min_tab_time", 0) + st.session_state.get("intervalle_temps_sec_tab_time",0) > 0:
+            intervalle_s = st.session_state.get("intervalle_temps_min_tab_time",0)*60 + st.session_state.get("intervalle_temps_sec_tab_time",0)
+            nb_intervalles = int(temps_total_s // intervalle_s)
+            st.markdown(f"**Intervalle temps : {intervalle_min} min {intervalle_sec} sec**")
+            for i in range(1, nb_intervalles+1):
+                t = i * intervalle_s
+                m = t * vitesse
+                st.write(f"{int(t//60):02d}:{int(t%60):02d} → {int(m)} m")
+        else:
+            st.warning("⚠ Veuillez saisir un intervalle en distance ou en temps.")
