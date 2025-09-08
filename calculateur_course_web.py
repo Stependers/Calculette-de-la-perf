@@ -4,35 +4,33 @@ st.set_page_config(page_title="Calculette de la Perf !", layout="centered")
 
 st.markdown("<h1 style='text-align: center;'>💪 Calculette de la Perf ! 💪</h1>", unsafe_allow_html=True)
 
-# --- Distance ---
+# Distance
 distance = st.number_input("Distance totale", min_value=0.0, value=5.0, step=0.1)
-unite = st.selectbox("Unité :", ["km", "m"])
-distance_m = distance * 1000 if unite=="km" else distance
+unite = st.selectbox("Unité", ["km", "m"])
+distance_m = distance*1000 if unite=="km" else distance
 
-# --- Onglets Temps visé / Allure visée ---
-tab1, tab2 = st.tabs(["⏱️ Temps visé", "🏃 Allure visée (min/km)"])
+# Onglets
+tab1, tab2 = st.tabs(["⏱️ Temps visé", "🏃 Allure visée"])
 
-# --- Onglet Temps visé ---
-with tab1:
+with tab1:  # Temps visé
     col1, col2 = st.columns(2)
-    temps_min = col1.number_input("Minutes", min_value=0, value=25, step=1, key="temps_vise_min_tab1")
-    temps_sec = col2.number_input("Secondes", min_value=0, max_value=59, value=0, step=1, key="temps_vise_sec_tab1")
-    if distance_m > 0:
+    temps_min = col1.number_input("Minutes", min_value=0, value=25, key="t_min")
+    temps_sec = col2.number_input("Secondes", min_value=0, max_value=59, value=0, key="t_sec")
+    if st.button("Calculer allure", key="btn_temps"):
         temps_total_s = temps_min*60 + temps_sec
-        allure_s = (temps_total_s / distance_m) * 1000 if temps_total_s > 0 else 0
-        if allure_s > 0:
-            st.markdown(f"**Allure visée :** {int(allure_s//60)} min {int(allure_s%60)} sec / km")
+        if temps_total_s > 0 and distance_m > 0:
+            allure_s = (temps_total_s / distance_m) * 1000
+            st.success(f"Allure visée : {int(allure_s//60)} min {int(allure_s%60)} sec / km")
 
-# --- Onglet Allure visée ---
-with tab2:
+with tab2:  # Allure visée
     col3, col4 = st.columns(2)
-    allure_min = col3.number_input("Minutes", min_value=0, value=5, step=1, key="allure_visee_min_tab2")
-    allure_sec = col4.number_input("Secondes", min_value=0, max_value=59, value=0, step=1, key="allure_visee_sec_tab2")
-    if distance_m > 0:
+    allure_min = col3.number_input("Minutes", min_value=0, value=5, key="a_min")
+    allure_sec = col4.number_input("Secondes", min_value=0, max_value=59, value=0, key="a_sec")
+    if st.button("Calculer temps", key="btn_allure"):
         allure_s = allure_min*60 + allure_sec
-        temps_total_s = (distance_m / 1000) * allure_s if allure_s > 0 else 0
-        if temps_total_s > 0:
-            st.markdown(f"**Temps visé :** {int(temps_total_s//60)} min {int(temps_total_s%60)} sec")
+        if allure_s > 0 and distance_m > 0:
+            temps_total_s = (distance_m / 1000) * allure_s
+            st.success(f"Temps visé : {int(temps_total_s//60)} min {int(temps_total_s%60)} sec")
 
 # --- Onglets Intervalle ---
 tab3, tab4 = st.tabs(["📏 Intervalle par distance", "⏳ Intervalle par temps"])
@@ -71,3 +69,4 @@ with tab4:
             st.subheader("Résultats Intervalle Temps :")
             for s in sorties_temps:
                 st.write(s)
+
