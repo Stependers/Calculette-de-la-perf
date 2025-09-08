@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 
 st.set_page_config(page_title="Calculette de la Perf !", layout="centered")
 
@@ -18,7 +19,7 @@ with onglets_outils[0]:
     distance = st.number_input("Distance totale (km)", min_value=0.0, value=5.0, step=0.1)
     distance_m = distance * 1000
 
-    # --- Onglets Temps visé / Allure visée ---
+    # --- Temps visé / Allure visée ---
     mode_calc = st.radio("Sélectionner la méthode", ["Temps visé", "Allure visée"], horizontal=True)
 
     allure_s = 0
@@ -97,8 +98,42 @@ with onglets_outils[0]:
 # =========================
 with onglets_outils[1]:
     st.subheader("⚡ VMAïe ! - Outil de séances VMA")
-    st.write("Ici vous pouvez créer vos séances VMA avec vos vitesses et distances.\n")
-    st.write("Exemple : définir %VMA, durée, récupération, répétitions, etc.")
+
+    # --- VMA et %VMA ---
+    col_vma1, col_vma2 = st.columns(2)
+    vma = col_vma1.number_input("VMA (km/h)", min_value=0.0, value=15.0, step=0.1)
+    pct_vma = col_vma2.number_input("%VMA visé", min_value=50, max_value=100, value=100, step=5)
+
+    # --- Choix distance ou temps ---
+    mode_vma = st.radio("Mode de calcul", ["Distance connue", "Temps connu"], horizontal=True)
+
+    if mode_vma == "Distance connue":
+        dist = st.number_input("Distance à parcourir (m)", min_value=1, value=200, step=50)
+        temps_s = dist / (vma * pct_vma / 100 * 1000 / 3600)  # vma km/h -> m/s
+        st.write(f"Temps à réaliser : {int(temps_s//60)} min {int(temps_s%60)} sec")
+    else:
+        col_t1, col_t2 = st.columns(2)
+        t_min = col_t1.number_input("Minutes", min_value=0, value=1, step=1)
+        t_sec = col_t2.number_input("Secondes", min_value=0, max_value=59, value=0, step=1)
+        temps_s = t_min*60 + t_sec
+        dist = temps_s * (vma * pct_vma / 100 * 1000 / 3600)
+        st.write(f"Distance parcourue : {int(dist)} m")
+
+    # --- Tableau VMA ---
+    st.subheader("Tableau des temps pour différentes distances et %VMA")
+    distances_tab = [100, 200, 300, 400, 500, 600, 800, 1000]
+    pct_tab = list(range(50, 105, 5))  # 50% à 100%
+
+    tableau = []
+    for p in pct_tab:
+        ligne = []
+        for d in distances_tab:
+            t_s = d / (vma * p / 100 * 1000 / 3600)
+            ligne.append(f"{int(t_s//60):02d}:{int(t_s%60):02d}")
+        tableau.append(ligne)
+
+    df_tableau = pd.DataFrame(tableau, index=[f"{p}%" for p in pct_tab], columns=[f"{d} m" for d in distances_tab])
+    st.dataframe(df_tableau)
 
 # --- Copyright ---
 st.markdown("<p style='text-align: center;'>© by Coach Antoine</p>", unsafe_allow_html=True)
