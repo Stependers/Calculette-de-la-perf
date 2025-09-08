@@ -10,13 +10,14 @@ distance = col_dist1.number_input("Entrez la distance :", min_value=0.0, value=5
 unite = col_dist2.selectbox("Unité :", ["km", "m"], key="unite")
 distance_m = distance * 1000 if unite == "km" else distance
 
-# --- Onglets pour Temps visé / Allure visée ---
-tab_temps, tab_allure = st.tabs(["⏱️ Temps visé", "🏃 Allure visée (min/km)"])
-
+# Variables initiales
 temps_total_s = 0
 allure_s = 0
 temps_min = temps_sec = 0
 allure_min = allure_sec = 0
+
+# --- Onglets Temps visé / Allure visée ---
+tab_temps, tab_allure = st.tabs(["⏱️ Temps visé", "🏃 Allure visée (min/km)"])
 
 with tab_temps:
     st.subheader("Temps visé")
@@ -28,6 +29,8 @@ with tab_temps:
         allure_s = (temps_total_s / distance_m) * 1000
         allure_min = int(allure_s // 60)
         allure_sec = int(allure_s % 60)
+        # On n'affiche QUE l'allure ici
+        st.markdown(f"**Allure :** {allure_min} min {allure_sec} sec / km")
 
 with tab_allure:
     st.subheader("Allure visée (min/km)")
@@ -39,10 +42,8 @@ with tab_allure:
         temps_total_s = (distance_m / 1000) * allure_s
         temps_min = int(temps_total_s // 60)
         temps_sec = int(temps_total_s % 60)
-
-# --- Affichage calculé ---
-st.markdown(f"**Allure calculée :** {allure_min} min {allure_sec} sec / km")
-st.markdown(f"**Temps visé calculé :** {temps_min} min {temps_sec} sec")
+        # On n'affiche QUE le temps total ici
+        st.markdown(f"**Temps total :** {temps_min} min {temps_sec} sec")
 
 # --- Onglets pour Intervalle ---
 tab_intervalle_distance, tab_intervalle_temps = st.tabs(["📏 Intervalle par distance", "⏳ Intervalle par temps"])
