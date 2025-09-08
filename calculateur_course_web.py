@@ -3,7 +3,7 @@ import streamlit as st
 # --- Configuration de la page ---
 st.set_page_config(page_title="Calculette de la Perf !", layout="centered")
 
-# --- Titre ---
+# --- Titre centré ---
 st.markdown("<h1 style='text-align: center;'>💪 Calculette de la Perf ! 💪</h1>", unsafe_allow_html=True)
 
 # --- Distance totale ---
@@ -36,9 +36,16 @@ with tab_pace:
         temps_total_s = (distance_m / 1000) * allure_s
         st.markdown(f"**Temps visé :** {int(temps_total_s//60)} min {int(temps_total_s%60)} sec")
 
-# --- Onglets Intervalle avec radio caché ---
+# --- Onglets Intervalle avec radio caché pour gérer l’onglet actif ---
 st.subheader("Intervalle")
-interval_type = st.radio("Sélectionnez le type d'intervalle :", ["Distance", "Temps"], horizontal=True)
+interval_type = st.radio("Type d'intervalle :", ["Distance", "Temps"], index=0, key="hidden_radio")
+# --- cacher le radio ---
+st.markdown("""
+<style>
+div[role="radiogroup"] {display:none;}
+</style>
+""", unsafe_allow_html=True)
+
 tab_dist, tab_time_interval = st.tabs(["📏 Intervalle par distance", "⏳ Intervalle par temps"])
 
 # Variables intervalle
@@ -74,7 +81,7 @@ if st.button("🏃 En route pour la perf !"):
     if allure_s <= 0:
         st.warning("⚠ Veuillez saisir un temps visé ou une allure visée valide.")
     else:
-        vitesse = 1000 / allure_s  # m/s
+        vitesse = 1000 / allure_s
         st.subheader("Résultats :")
 
         # --- Calcul intervalle distance ---
