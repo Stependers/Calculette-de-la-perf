@@ -4,7 +4,7 @@ st.set_page_config(page_title="Calculette de la Perf !", layout="centered")
 st.title("💪 Calculette de la Perf ! 💪")
 
 # --- Distance totale ---
-st.subheader("Distance totale")
+st.subheader("Distance")
 col_dist1, col_dist2 = st.columns([2,1])
 distance = col_dist1.number_input("Entrez la distance :", min_value=0.0, value=5.0, step=0.1, key="distance_total")
 unite = col_dist2.selectbox("Unité :", ["km", "m"], key="unite")
@@ -86,3 +86,4 @@ if st.button("🏃 En route vers la perf !"):
             st.write(s)
     else:
         st.write("Aucun intervalle calculé.")
+
