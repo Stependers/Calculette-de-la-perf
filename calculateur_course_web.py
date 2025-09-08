@@ -135,7 +135,7 @@ with onglets_outils[1]:
         t_sec = col_t2.number_input("Secondes", min_value=0, max_value=59, value=0, step=1)
         temps_s = t_min*60 + t_sec
         dist = temps_s * (vma * pct_vma_user / 100 * 1000 / 3600)
-        st.markdown(f"<div class='vma-result'>Distance parcourue : {int(dist)} m</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='vma-result'>Distance à parcourir : {int(dist)} m</div>", unsafe_allow_html=True)
 
     st.subheader("Tableau des temps pour différentes distances et %VMA")
     distances_tab = [100, 200, 300, 400, 500, 600, 800, 1000]
@@ -154,3 +154,4 @@ with onglets_outils[1]:
 
 # --- Copyright ---
 st.markdown("<p style='text-align: center;'>© by Coach Antoine</p>", unsafe_allow_html=True)
+
