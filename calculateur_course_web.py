@@ -4,7 +4,7 @@ st.set_page_config(page_title="Calculette de la Perf !", layout="centered")
 st.title("💪 Calculette de la Perf ! 💪")
 
 # --- Distance totale ---
-st.subheader("Distance")
+st.subheader("Distance totale")
 col_dist1, col_dist2 = st.columns([2,1])
 distance = col_dist1.number_input("Entrez la distance :", min_value=0.0, value=5.0, step=0.1, key="distance_total")
 unite = col_dist2.selectbox("Unité :", ["km", "m"], key="unite")
@@ -29,7 +29,6 @@ with tab_temps:
         allure_s = (temps_total_s / distance_m) * 1000
         allure_min = int(allure_s // 60)
         allure_sec = int(allure_s % 60)
-        # On n'affiche QUE l'allure ici
         st.markdown(f"**Allure :** {allure_min} min {allure_sec} sec / km")
 
 with tab_allure:
@@ -42,7 +41,6 @@ with tab_allure:
         temps_total_s = (distance_m / 1000) * allure_s
         temps_min = int(temps_total_s // 60)
         temps_sec = int(temps_total_s % 60)
-        # On n'affiche QUE le temps total ici
         st.markdown(f"**Temps total :** {temps_min} min {temps_sec} sec")
 
 # --- Onglets pour Intervalle ---
@@ -78,7 +76,25 @@ else:
                 secondes = int(t % 60)
                 sorties.append(f"{minutes:02d}:{secondes:02d} → {int(m)} m")
 
-# --- Bouton calcul ---
+# --- Bouton calcul centré et plus gros ---
+# Ajout d’un style CSS
+st.markdown(
+    """
+    <style>
+    div.stButton > button:first-child {
+        display: block;
+        margin: 0 auto;
+        font-size: 20px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 if st.button("🏃 En route vers la perf !"):
     st.subheader("Résultats :")
     if sorties:
@@ -86,4 +102,3 @@ if st.button("🏃 En route vers la perf !"):
             st.write(s)
     else:
         st.write("Aucun intervalle calculé.")
-
