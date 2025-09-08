@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 
 st.set_page_config(page_title="Calculette de la Perf !", layout="centered")
 
@@ -102,38 +103,55 @@ with onglets_outils[1]:
     # --- VMA et %VMA ---
     col_vma1, col_vma2 = st.columns(2)
     vma = col_vma1.number_input("VMA (km/h)", min_value=0.0, value=15.0, step=0.1)
-    pct_vma = col_vma2.number_input("%VMA visé", min_value=50, max_value=100, value=100, step=5)
+    pct_vma_user = col_vma2.number_input("%VMA visé", min_value=50, max_value=120, value=100, step=5)
 
     # --- Choix distance ou temps ---
     mode_vma = st.radio("Mode de calcul", ["Distance connue", "Temps connu"], horizontal=True)
 
     if mode_vma == "Distance connue":
         dist = st.number_input("Distance à parcourir (m)", min_value=1, value=200, step=50)
-        temps_s = dist / (vma * pct_vma / 100 * 1000 / 3600)  # vma km/h -> m/s
+        temps_s = dist / (vma * pct_vma_user / 100 * 1000 / 3600)  # vma km/h -> m/s
         st.write(f"Temps à réaliser : {int(temps_s//60)} min {int(temps_s%60)} sec")
     else:
         col_t1, col_t2 = st.columns(2)
         t_min = col_t1.number_input("Minutes", min_value=0, value=1, step=1)
         t_sec = col_t2.number_input("Secondes", min_value=0, max_value=59, value=0, step=1)
         temps_s = t_min*60 + t_sec
-        dist = temps_s * (vma * pct_vma / 100 * 1000 / 3600)
+        dist = temps_s * (vma * pct_vma_user / 100 * 1000 / 3600)
         st.write(f"Distance parcourue : {int(dist)} m")
 
-    # --- Tableau VMA ---
+    # --- Tableau VMA coloré ---
     st.subheader("Tableau des temps pour différentes distances et %VMA")
     distances_tab = [100, 200, 300, 400, 500, 600, 800, 1000]
-    pct_tab = list(range(50, 105, 5))  # 50% à 100%
+    pct_tab = list(range(80, 125, 5))  # 80% à 120%
 
     tableau = []
     for p in pct_tab:
         ligne = []
         for d in distances_tab:
             t_s = d / (vma * p / 100 * 1000 / 3600)
-            ligne.append(f"{int(t_s//60):02d}:{int(t_s%60):02d}")
+            ligne.append(t_s)
         tableau.append(ligne)
 
     df_tableau = pd.DataFrame(tableau, index=[f"{p}%" for p in pct_tab], columns=[f"{d} m" for d in distances_tab])
-    st.dataframe(df_tableau)
+
+    # --- Formatage temps et couleurs ---
+    def format_temps(val):
+        m = int(val//60)
+        s = int(val%60)
+        return f"{m:02d}:{s:02d}"
+
+    def color_map(val):
+        # Plus rapide = plus clair, plus lent = plus foncé
+        norm = (val - df_tableau.values.min()) / (df_tableau.values.max() - df_tableau.values.min())
+        r = int(255 * (1 - norm))
+        g = int(255 * (1 - norm))
+        b = 200
+        return f'background-color: rgb({r},{g},{b})'
+
+    df_display = df_tableau.copy()
+    df_display = df_display.applymap(format_temps)
+    st.dataframe(df_display.style.applymap(color_map))
 
 # --- Copyright ---
 st.markdown("<p style='text-align: center;'>© by Coach Antoine</p>", unsafe_allow_html=True)
