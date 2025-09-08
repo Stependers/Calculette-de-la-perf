@@ -69,4 +69,23 @@ else:
     else:  # Temps
         col5, col6 = st.columns(2)
         intervalle_min = col5.number_input("Minutes", min_value=0, value=1, step=1, key="intervalle_temps_min")
-        intervalle_sec = col6.number_input("Secondes", min
+        intervalle_sec = col6.number_input("Secondes", min_value=0, max_value=59, value=0, step=1, key="intervalle_temps_sec")
+        intervalle_s = intervalle_min * 60 + intervalle_sec
+        if intervalle_s > 0:
+            nb_intervalles = int(temps_total_s // intervalle_s)
+            vitesse = 1000 / allure_s
+            for i in range(1, nb_intervalles + 1):
+                t = i * intervalle_s
+                m = t * vitesse
+                minutes = int(t // 60)
+                secondes = int(t % 60)
+                sorties.append(f"{minutes:02d}:{secondes:02d} → {int(m)} m")
+
+# --- Bouton calcul ---
+if st.button("🏃 En route vers la perf !", key="bouton_calcul"):
+    if sorties:
+        st.subheader("Résultats :")
+        for s in sorties:
+            st.write(s)
+    else:
+        st.warning("⚠ Aucun intervalle calculé. Vérifiez vos entrées.")
