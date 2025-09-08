@@ -76,14 +76,11 @@ else:
                 secondes = int(t % 60)
                 sorties.append(f"{minutes:02d}:{secondes:02d} → {int(m)} m")
 
-# --- Bouton calcul centré et plus gros ---
-# Ajout d’un style CSS
+# --- Style du bouton ---
 st.markdown(
     """
     <style>
     div.stButton > button:first-child {
-        display: block;
-        margin: 0 auto;
         font-size: 20px;
         background-color: #4CAF50;
         color: white;
@@ -95,10 +92,13 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-if st.button("🏃 En route vers la perf !"):
-    st.subheader("Résultats :")
-    if sorties:
-        for s in sorties:
-            st.write(s)
-    else:
-        st.write("Aucun intervalle calculé.")
+# --- Trois colonnes pour centrer le bouton ---
+col_empty1, col_button, col_empty2 = st.columns([1,1,1])
+with col_button:
+    if st.button("🏃 En route vers la perf !"):
+        st.subheader("Résultats :")
+        if sorties:
+            for s in sorties:
+                st.write(s)
+        else:
+            st.write("Aucun intervalle calculé.")
