@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 
 st.set_page_config(page_title="Calculette de la Perf !", layout="centered")
 
@@ -110,7 +109,7 @@ with onglets_outils[1]:
 
     if mode_vma == "Distance connue":
         dist = st.number_input("Distance à parcourir (m)", min_value=1, value=200, step=50)
-        temps_s = dist / (vma * pct_vma_user / 100 * 1000 / 3600)  # vma km/h -> m/s
+        temps_s = dist / (vma * pct_vma_user / 100 * 1000 / 3600)
         st.write(f"Temps à réaliser : {int(temps_s//60)} min {int(temps_s%60)} sec")
     else:
         col_t1, col_t2 = st.columns(2)
@@ -137,21 +136,18 @@ with onglets_outils[1]:
 
     # --- Formatage temps et couleurs ---
     def format_temps(val):
-        m = int(val//60)
-        s = int(val%60)
+        m = int(val // 60)
+        s = int(val % 60)
         return f"{m:02d}:{s:02d}"
 
     def color_map(val):
-        # Plus rapide = plus clair, plus lent = plus foncé
         norm = (val - df_tableau.values.min()) / (df_tableau.values.max() - df_tableau.values.min())
         r = int(255 * (1 - norm))
         g = int(255 * (1 - norm))
         b = 200
         return f'background-color: rgb({r},{g},{b})'
 
-    df_display = df_tableau.copy()
-    df_display = df_display.applymap(format_temps)
-    st.dataframe(df_display.style.applymap(color_map))
+    st.dataframe(df_tableau.style.format(format_temps).applymap(color_map))
 
 # --- Copyright ---
 st.markdown("<p style='text-align: center;'>© by Coach Antoine</p>", unsafe_allow_html=True)
