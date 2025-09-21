@@ -163,4 +163,5 @@ with onglets_outils[1]:
     st.dataframe(df_tableau)
 
 # --- Copyright ---
-st.markdown("<p style='text-align: center;'>© by Coach Antoine</p>", unsafe_allow_html
+st.markdown("<p style='text-align: center;'>© by Coach Antoine</p>"), unsafe_allow_html
+
