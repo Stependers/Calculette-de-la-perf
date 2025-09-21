@@ -38,13 +38,11 @@ div.stButton > button:first-child {
 </style>
 """, unsafe_allow_html=True)
 
-# --- Titre global ---
 st.markdown("<h1>💪 Calculette de la Perf ! 💪</h1>", unsafe_allow_html=True)
 
 # --- Onglets outils ---
 onglets_outils = st.tabs(["📊 Calcul d'intervalles", "⚡ VMAïe !"])
 
-# --- Fonction formatage du temps ---
 def format_temps(temps_s):
     minutes = int(temps_s // 60)
     secondes = temps_s % 60
@@ -59,24 +57,26 @@ def format_temps(temps_s):
 with onglets_outils[0]:
     st.subheader("📏 Calcul d'intervalles")
 
-    # Choix distance prédéfinie
+    # bouton radio pour pré-remplir
     choix_distance = st.radio(
         "Choisir une distance prédéfinie :",
-        ("Saisie manuelle", "5 km", "10 km", "Semi-marathon (21.1 km)", "Marathon (42.195 km)"),
+        ("Aucune", "5 km", "10 km", "Semi-marathon (21.1 km)", "Marathon (42.195 km)"),
         horizontal=True
     )
 
+    # distance saisie manuelle, on l'initialise en fonction du radio
+    distance_defaut = 5.0
     if choix_distance == "5 km":
-        distance_km = 5.0
+        distance_defaut = 5.0
     elif choix_distance == "10 km":
-        distance_km = 10.0
+        distance_defaut = 10.0
     elif choix_distance == "Semi-marathon (21.1 km)":
-        distance_km = 21.1
+        distance_defaut = 21.1
     elif choix_distance == "Marathon (42.195 km)":
-        distance_km = 42.195
-    else:
-        distance_km = st.number_input("Distance totale (km)", min_value=0.0, value=5.0, step=0.1)
+        distance_defaut = 42.195
 
+    # Champ saisie manuelle (avec la valeur préremplie)
+    distance_km = st.number_input("Distance totale (km)", min_value=0.0, value=distance_defaut, step=0.1)
     distance_m = distance_km * 1000
 
     mode_calc = st.radio("Sélectionner la méthode", ["Temps visé", "Allure visée"], horizontal=True)
@@ -172,5 +172,4 @@ with onglets_outils[1]:
     df_tableau = pd.DataFrame(tableau, index=[f"{p}%" for p in pct_tab], columns=[f"{d} m" for d in distances_tab])
     st.dataframe(df_tableau)
 
-# --- Copyright ---
 st.markdown("<p style='text-align: center;'>© by Coach Antoine</p>", unsafe_allow_html=True)
