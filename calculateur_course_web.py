@@ -3,21 +3,21 @@ import pandas as pd
 
 st.set_page_config(page_title="Calculette de la Perf !", layout="centered")
 
-# --- CSS pour style ---
+# --- CSS pour responsive et style ---
 st.markdown("""
 <style>
 h1 {
-    text-align:center;
-    font-size:28px;
+    text-align: center;
+    font-size: 28px;
 }
 div.stButton > button:first-child {
-    font-size:22px;
-    background-color:#4CAF50;
-    color:white;
-    padding:12px 24px;
-    border-radius:8px;
-    display:block;
-    margin:20px auto;
+    font-size: 22px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    display: block;
+    margin: 20px auto;
 }
 .vma-result {
     border:2px solid #4CAF50;
@@ -27,13 +27,12 @@ div.stButton > button:first-child {
     text-align:center;
     font-size:20px;
     font-weight:bold;
-    color:black;
+    color: black;
     margin-bottom:15px;
 }
 @media only screen and (max-width: 600px) {
     div[data-baseweb="column"] {
-        flex-direction: row;
-        gap:5px;
+        flex-direction: column;
     }
 }
 </style>
@@ -45,7 +44,7 @@ st.markdown("<h1>💪 Calculette de la Perf ! 💪</h1>", unsafe_allow_html=True
 # --- Onglets outils ---
 onglets_outils = st.tabs(["📊 Calcul d'intervalles", "⚡ VMAïe !"])
 
-# --- Fonction format temps ---
+# --- Fonction pour formater le temps ---
 def format_temps(temps_s):
     minutes = int(temps_s // 60)
     secondes = temps_s % 60
@@ -60,54 +59,48 @@ def format_temps(temps_s):
 with onglets_outils[0]:
     st.subheader("📏 Calcul d'intervalles")
     
-    # --- Distance prédéfinie ou saisie manuelle ---
-    col_dist1, col_dist2 = st.columns(2)
-    dist_predef = col_dist1.radio("Distance prédéfinie", ["5 km", "10 km", "Semi-marathon", "Marathon"], horizontal=True)
-    dist_dict = {"5 km":5.0, "10 km":10.0, "Semi-marathon":21.1, "Marathon":42.195}
+    # Champ Distance (englobe distances prédéfinies et saisie manuelle)
+    distance_dict = {"5 km": 5.0, "10 km": 10.0, "Semi-marathon": 21.1, "Marathon": 42.195}
+    choix_distance = st.radio("", ["5 km", "10 km", "Semi-marathon", "Marathon", "Libre"], horizontal=True)
+    if choix_distance != "Libre":
+        distance = distance_dict[choix_distance]
+    else:
+        distance = st.number_input("Distance (km)", min_value=0.0, value=5.0, step=0.1, format="%.3f")
     
-    distance = col_dist2.number_input("Distance totale (km)", min_value=0.0, value=dist_dict[dist_predef], step=0.1)
     distance_m = distance * 1000
-    
-    # Mise à jour si l'utilisateur clique sur distance prédéfinie
-    if dist_predef:
-        distance = dist_dict[dist_predef]
-        distance_m = distance * 1000
-    
-    # --- Temps visé ou allure visée ---
+
     mode_calc = st.radio("Sélectionner la méthode", ["Temps visé", "Allure visée"], horizontal=True)
     allure_s = 0
     temps_total_s = 0
 
     if mode_calc == "Temps visé":
         col1, col2, col3 = st.columns(3)
-        heures = col1.number_input("Heures", min_value=0, value=0, step=1)
-        minutes = col2.number_input("Minutes", min_value=0, value=25, step=1)
-        secondes = col3.number_input("Secondes", min_value=0, max_value=59, value=0, step=1)
+        heures = col1.number_input("Heures", min_value=0, value=0, step=1, key="heures")
+        minutes = col2.number_input("Minutes", min_value=0, value=25, step=1, key="minutes")
+        secondes = col3.number_input("Secondes", min_value=0, max_value=59, value=0, step=1, key="secondes")
         temps_total_s = heures*3600 + minutes*60 + secondes
         if distance_m > 0 and temps_total_s > 0:
             allure_s = (temps_total_s / distance_m) * 1000
             st.markdown(f"**Allure visée :** {int(allure_s//60)} min {int(allure_s%60)} / km")
     else:
-        col3, col4 = st.columns(2)
-        allure_min = col3.number_input("Minutes", min_value=0, value=5, step=1)
-        allure_sec = col4.number_input("Secondes", min_value=0, max_value=59, value=0, step=1)
+        col4, col5 = st.columns(2)
+        allure_min = col4.number_input("Minutes", min_value=0, value=5, step=1, key="a_min")
+        allure_sec = col5.number_input("Secondes", min_value=0, max_value=59, value=0, step=1, key="a_sec")
         allure_s = allure_min*60 + allure_sec
         if distance_m > 0 and allure_s > 0:
             temps_total_s = (distance_m / 1000) * allure_s
             st.markdown(f"**Temps visé :** {int(temps_total_s//60)} min {int(temps_total_s%60)}")
 
-    # --- Intervalle ---
     intervalle_type = st.radio("Type d'intervalle", ["Distance", "Temps"], horizontal=True)
     intervalle_m = intervalle_s = 0
     if intervalle_type == "Distance":
         intervalle_m = st.number_input("Intervalle choisi (m)", min_value=1, value=1000, step=100)
     else:
-        col5, col6 = st.columns(2)
-        intervalle_min = col5.number_input("Minutes", min_value=0, value=1, step=1)
-        intervalle_sec = col6.number_input("Secondes", min_value=0, max_value=59, value=0, step=1)
+        col6, col7 = st.columns(2)
+        intervalle_min = col6.number_input("Minutes", min_value=0, value=1, step=1)
+        intervalle_sec = col7.number_input("Secondes", min_value=0, max_value=59, value=0, step=1)
         intervalle_s = intervalle_min*60 + intervalle_sec
 
-    # --- Bouton calcul uniquement pour cet onglet ---
     if st.button("🏃 En route pour la perf !"):
         if allure_s <= 0:
             st.warning("⚠ Veuillez saisir un temps visé ou une allure visée valide.")
@@ -157,6 +150,7 @@ with onglets_outils[1]:
     st.subheader("Tableau des temps pour différentes distances et %VMA")
     distances_tab = [100, 200, 300, 400, 500, 600, 800, 1000]
     pct_tab = list(range(80, 125, 5))
+
     tableau = []
     for p in pct_tab:
         ligne = []
@@ -164,8 +158,9 @@ with onglets_outils[1]:
             t_s = d / (vma * p / 100 * 1000 / 3600)
             ligne.append(format_temps(t_s))
         tableau.append(ligne)
+
     df_tableau = pd.DataFrame(tableau, index=[f"{p}%" for p in pct_tab], columns=[f"{d} m" for d in distances_tab])
     st.dataframe(df_tableau)
 
 # --- Copyright ---
-st.markdown("<p style='text-align: center;'>© by Coach Antoine</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>© by Coach Antoine</p>", unsafe_allow_html
