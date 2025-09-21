@@ -7,28 +7,29 @@ st.set_page_config(page_title="Calculette de la Perf !", layout="centered")
 st.markdown("""
 <style>
 .stApp {
+    position: relative;
+    min-height: 100vh;
     background-image: url("https://raw.githubusercontent.com/Stependers/Calculette-de-la-perf/main/personne-jogging-au-parc.jpg");
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    position: relative;
 }
+
+/* Overlay semi-transparent */
 .stApp::before {
     content: "";
-    position: absolute;
-    top:0; left:0;
-    width:100%; height:100%;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     background-color: rgba(255,255,255,0.3);
-    z-index:0;
+    z-index: -1; /* Important : derrière tout le contenu */
 }
-main {
-    position: relative;
-    z-index:1;
-}
+
 h1 {
     text-align:center;
     font-size:28px;
 }
+
 div.stButton > button:first-child {
     font-size:22px;
     background-color:#4CAF50;
@@ -38,6 +39,7 @@ div.stButton > button:first-child {
     display:block;
     margin:20px auto;
 }
+
 .vma-result {
     border:2px solid #4CAF50;
     padding:15px;
@@ -49,6 +51,7 @@ div.stButton > button:first-child {
     color:black;
     margin-bottom:15px;
 }
+
 @media only screen and (max-width: 600px) {
     div[data-baseweb="column"] { flex-direction: column; }
 }
@@ -180,3 +183,4 @@ with onglets_outils[1]:
 
 # --- Copyright ---
 st.markdown("<p style='text-align: center;'>© by Coach Antoine</p>", unsafe_allow_html=True)
+
