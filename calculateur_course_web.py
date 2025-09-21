@@ -3,7 +3,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Calculette de la Perf !", layout="centered")
 
-# --- CSS pour responsive et style ---
+# --- CSS ---
 st.markdown("""
 <style>
 h1 {
@@ -38,13 +38,9 @@ div.stButton > button:first-child {
 </style>
 """, unsafe_allow_html=True)
 
-# --- Titre global ---
 st.markdown("<h1>💪 Calculette de la Perf ! 💪</h1>", unsafe_allow_html=True)
-
-# --- Onglets outils ---
 onglets_outils = st.tabs(["📊 Calcul d'intervalles", "⚡ VMAïe !"])
 
-# --- Fonction pour formater le temps ---
 def format_temps(temps_s):
     minutes = int(temps_s // 60)
     secondes = temps_s % 60
@@ -58,7 +54,21 @@ def format_temps(temps_s):
 # =========================
 with onglets_outils[0]:
     st.subheader("📏 Calcul d'intervalles")
-    distance = st.number_input("Distance totale (km)", min_value=0.0, value=5.0, step=0.1)
+
+    # Choix distance prédéfinie
+    distances_preset = {
+        "— (saisie manuelle)": None,
+        "5 km": 5.0,
+        "10 km": 10.0,
+        "Semi-marathon (21.1 km)": 21.1,
+        "Marathon (42.195 km)": 42.195
+    }
+    preset = st.selectbox("Choisir une distance prédéfinie :", list(distances_preset.keys()))
+    if distances_preset[preset] is not None:
+        distance = distances_preset[preset]
+    else:
+        distance = st.number_input("Distance totale (km)", min_value=0.0, value=5.0, step=0.1)
+
     distance_m = distance * 1000
 
     mode_calc = st.radio("Sélectionner la méthode", ["Temps visé", "Allure visée"], horizontal=True)
@@ -160,5 +170,4 @@ with onglets_outils[1]:
     df_tableau = pd.DataFrame(tableau, index=[f"{p}%" for p in pct_tab], columns=[f"{d} m" for d in distances_tab])
     st.dataframe(df_tableau)
 
-# --- Copyright ---
 st.markdown("<p style='text-align: center;'>© by Coach Antoine</p>", unsafe_allow_html=True)
