@@ -27,7 +27,7 @@ div.stButton > button:first-child {
     text-align:center;
     font-size:20px;
     font-weight:bold;
-    color: black;  /* Texte en noir pour lisibilité mobile */
+    color: black;
     margin-bottom:15px;
 }
 @media only screen and (max-width: 600px) {
@@ -66,10 +66,11 @@ with onglets_outils[0]:
     temps_total_s = 0
 
     if mode_calc == "Temps visé":
-        col1, col2 = st.columns(2)
-        temps_min = col1.number_input("Minutes", min_value=0, value=25, step=1, key="t_min")
-        temps_sec = col2.number_input("Secondes", min_value=0, max_value=59, value=0, step=1, key="t_sec")
-        temps_total_s = temps_min*60 + temps_sec
+        col_h, col_m, col_s = st.columns(3)
+        temps_h = col_h.number_input("Heures", min_value=0, value=0, step=1, key="t_h")
+        temps_min = col_m.number_input("Minutes", min_value=0, max_value=59, value=25, step=1, key="t_min")
+        temps_sec = col_s.number_input("Secondes", min_value=0, max_value=59, value=0, step=1, key="t_sec")
+        temps_total_s = temps_h*3600 + temps_min*60 + temps_sec
         if distance_m > 0 and temps_total_s > 0:
             allure_s = (temps_total_s / distance_m) * 1000
             st.markdown(f"**Allure :** {int(allure_s//60)} min {int(allure_s%60)} / km")
@@ -80,7 +81,13 @@ with onglets_outils[0]:
         allure_s = allure_min*60 + allure_sec
         if distance_m > 0 and allure_s > 0:
             temps_total_s = (distance_m / 1000) * allure_s
-            st.markdown(f"**Temps visé :** {int(temps_total_s//60)} min {int(temps_total_s%60)}")
+            h = int(temps_total_s // 3600)
+            m = int((temps_total_s % 3600) // 60)
+            s = int(temps_total_s % 60)
+            if h > 0:
+                st.markdown(f"**Temps visé :** {h} h {m} min {s:02d} sec")
+            else:
+                st.markdown(f"**Temps visé :** {m} min {s:02d} sec")
 
     intervalle_type = st.radio("Type d'intervalle", ["Distance", "Temps"], horizontal=True)
     intervalle_m = intervalle_s = 0
@@ -155,4 +162,3 @@ with onglets_outils[1]:
 
 # --- Copyright ---
 st.markdown("<p style='text-align: center;'>© by Coach Antoine</p>", unsafe_allow_html=True)
-
