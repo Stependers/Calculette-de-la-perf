@@ -3,21 +3,40 @@ import pandas as pd
 
 st.set_page_config(page_title="Calculette de la Perf !", layout="centered")
 
-# --- CSS ---
+# --- CSS pour style, fond et overlay ---
 st.markdown("""
 <style>
+.stApp {
+    background-image: url("https://raw.githubusercontent.com/Stependers/Calculette-de-la-perf/main/personne-jogging-au-parc.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    position: relative;
+}
+.stApp::before {
+    content: "";
+    position: absolute;
+    top:0; left:0;
+    width:100%; height:100%;
+    background-color: rgba(255,255,255,0.3);
+    z-index:0;
+}
+main {
+    position: relative;
+    z-index:1;
+}
 h1 {
-    text-align: center;
-    font-size: 28px;
+    text-align:center;
+    font-size:28px;
 }
 div.stButton > button:first-child {
-    font-size: 22px;
-    background-color: #4CAF50;
-    color: white;
-    padding: 12px 24px;
-    border-radius: 8px;
-    display: block;
-    margin: 20px auto;
+    font-size:22px;
+    background-color:#4CAF50;
+    color:white;
+    padding:12px 24px;
+    border-radius:8px;
+    display:block;
+    margin:20px auto;
 }
 .vma-result {
     border:2px solid #4CAF50;
@@ -27,22 +46,22 @@ div.stButton > button:first-child {
     text-align:center;
     font-size:20px;
     font-weight:bold;
-    color: black;
+    color:black;
     margin-bottom:15px;
 }
 @media only screen and (max-width: 600px) {
-    div[data-baseweb="column"] {
-        flex-direction: column;
-    }
+    div[data-baseweb="column"] { flex-direction: column; }
 }
 </style>
 """, unsafe_allow_html=True)
 
+# --- Titre global ---
 st.markdown("<h1>💪 Calculette de la Perf ! 💪</h1>", unsafe_allow_html=True)
 
 # --- Onglets outils ---
 onglets_outils = st.tabs(["📊 Calcul d'intervalles", "⚡ VMAïe !"])
 
+# --- Fonction pour formater le temps ---
 def format_temps(temps_s):
     minutes = int(temps_s // 60)
     secondes = temps_s % 60
@@ -57,41 +76,28 @@ def format_temps(temps_s):
 with onglets_outils[0]:
     st.subheader("📏 Calcul d'intervalles")
 
-    # bouton radio pour pré-remplir
-    choix_distance = st.radio(
-        "Choisir une distance prédéfinie :",
-        ("Aucune", "5 km", "10 km", "Semi-marathon (21.1 km)", "Marathon (42.195 km)"),
-        horizontal=True
-    )
+    # Choix distance prédéfinie
+    choix_dist = st.radio("Distances prédéfinies :", ["5 km", "10 km", "Semi-marathon", "Marathon"], horizontal=True)
+    dist_dict = {"5 km":5.0, "10 km":10.0, "Semi-marathon":21.1, "Marathon":42.195}
+    distance = dist_dict[choix_dist]
 
-    # distance saisie manuelle, on l'initialise en fonction du radio
-    distance_defaut = 5.0
-    if choix_distance == "5 km":
-        distance_defaut = 5.0
-    elif choix_distance == "10 km":
-        distance_defaut = 10.0
-    elif choix_distance == "Semi-marathon (21.1 km)":
-        distance_defaut = 21.1
-    elif choix_distance == "Marathon (42.195 km)":
-        distance_defaut = 42.195
-
-    # Champ saisie manuelle (avec la valeur préremplie)
-    distance_km = st.number_input("Distance totale (km)", min_value=0.0, value=distance_defaut, step=0.1)
-    distance_m = distance_km * 1000
+    # Saisie manuelle possible
+    distance_saisie = st.number_input("Ou distance libre (km)", min_value=0.0, value=distance, step=0.1)
+    distance_m = distance_saisie * 1000
 
     mode_calc = st.radio("Sélectionner la méthode", ["Temps visé", "Allure visée"], horizontal=True)
     allure_s = 0
     temps_total_s = 0
 
     if mode_calc == "Temps visé":
-        colh, col1, col2 = st.columns(3)
-        temps_h = colh.number_input("Heures", min_value=0, value=0, step=1, key="t_h")
+        col1, col2, colh = st.columns([1,1,1])
+        heures = colh.number_input("Heures", min_value=0, value=0, step=1, key="t_heure")
         temps_min = col1.number_input("Minutes", min_value=0, value=25, step=1, key="t_min")
         temps_sec = col2.number_input("Secondes", min_value=0, max_value=59, value=0, step=1, key="t_sec")
-        temps_total_s = temps_h*3600 + temps_min*60 + temps_sec
+        temps_total_s = heures*3600 + temps_min*60 + temps_sec
         if distance_m > 0 and temps_total_s > 0:
             allure_s = (temps_total_s / distance_m) * 1000
-            st.markdown(f"**Allure :** {int(allure_s//60)} min {int(allure_s%60)} / km")
+            st.markdown(f"**Allure visée :** {int(allure_s//60)} min {int(allure_s%60)} / km")
     else:
         col3, col4 = st.columns(2)
         allure_min = col3.number_input("Minutes", min_value=0, value=5, step=1, key="a_min")
@@ -172,4 +178,5 @@ with onglets_outils[1]:
     df_tableau = pd.DataFrame(tableau, index=[f"{p}%" for p in pct_tab], columns=[f"{d} m" for d in distances_tab])
     st.dataframe(df_tableau)
 
+# --- Copyright ---
 st.markdown("<p style='text-align: center;'>© by Coach Antoine</p>", unsafe_allow_html=True)
