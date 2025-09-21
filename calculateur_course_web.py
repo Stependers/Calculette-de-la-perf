@@ -55,27 +55,29 @@ def format_temps(temps_s):
 with onglets_outils[0]:
     st.subheader("📏 Calcul d'intervalles")
 
-   # --- choix distances prédéfinies ---
-choix_distance = st.radio(
-    "Choisir une distance prédéfinie :",
-    ("Saisie manuelle", "5 km", "10 km", "Semi-marathon (21.1 km)", "Marathon (42.195 km)"),
-    horizontal=True
-)
+ with onglets_outils[0]:
+    st.subheader("📏 Calcul d'intervalles")
 
-# --- distance manuelle mise à jour automatiquement ---
-if choix_distance == "5 km":
-    distance_km = 5.0
-elif choix_distance == "10 km":
-    distance_km = 10.0
-elif choix_distance == "Semi-marathon (21.1 km)":
-    distance_km = 21.1
-elif choix_distance == "Marathon (42.195 km)":
-    distance_km = 42.195
-else:
-    distance_km = st.number_input("Distance totale (km)", min_value=0.0, value=5.0, step=0.1)
+    # --- Choix distance prédéfinie ---
+    choix_distance = st.radio(
+        "Choisir une distance prédéfinie :",
+        ("Saisie manuelle", "5 km", "10 km", "Semi-marathon (21.1 km)", "Marathon (42.195 km)"),
+        horizontal=True
+    )
 
-distance_m = distance_km * 1000
+    # --- Distance en km en fonction du choix ---
+    if choix_distance == "5 km":
+        distance_km = 5.0
+    elif choix_distance == "10 km":
+        distance_km = 10.0
+    elif choix_distance == "Semi-marathon (21.1 km)":
+        distance_km = 21.1
+    elif choix_distance == "Marathon (42.195 km)":
+        distance_km = 42.195
+    else:
+        distance_km = st.number_input("Distance totale (km)", min_value=0.0, value=5.0, step=0.1)
 
+    distance_m = distance_km * 1000
 
     distance_m = distance * 1000
 
@@ -179,4 +181,5 @@ with onglets_outils[1]:
     st.dataframe(df_tableau)
 
 st.markdown("<p style='text-align: center;'>© by Coach Antoine</p>", unsafe_allow_html=True)
+
 
